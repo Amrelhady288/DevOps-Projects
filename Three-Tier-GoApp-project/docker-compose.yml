@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  backend:
+    image: backend-go-app
+    container_name: backend-GoApp-container
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend/db-password:/run/secrets/db-password
+    networks:
+      - backend-GoApp-network
+    depends_on:
+      - db
+  db:
+    image: mysql:8.0
+    container_name: db-GoApp-container
+    hostname: db
+    env_file:
+      - database/env
+    networks:
+      - backend-GoApp-network
+  nginx:
+    image: nginx-go-app
+    container_name: nginx-GoApp-container
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+      - "8443:443"
+    networks:
+      - backend-GoApp-network
+      - nginx-GoApp-network
+
+networks:
+  backend-GoApp-network:
+  nginx-GoApp-network:
